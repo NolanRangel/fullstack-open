@@ -12,20 +12,30 @@ const Button = ({text, handleClick}) => {
 
 }
 
-const Statistics = ({good, bad, neutral, all, average}) => {
+const Statistics = ({good, bad, neutral, all, average, totalClicks}) => {
 
      return (
-         <div>
-             <h2>
-                 statistics
-             </h2>
-             <p>good {good}</p>
-             <p>neutral {neutral}</p>
-             <p>bad {bad}</p>
-             <p>all {all}</p>
-             {isNaN(average) ? <p>average 0</p> : <p>average {average}</p>}
-             {all === 0 ? <p>positive 0 %</p> : <p>positive {(good / all) * 100} %</p> }
-         </div>
+         <>
+         {totalClicks === 0 ?
+            <div>
+                <h4>
+                    No feedback given
+                </h4>
+            </div>
+         :
+             <div>
+                 <h2>
+                     statistics
+                 </h2>
+                 <p>good {good}</p>
+                 <p>neutral {neutral}</p>
+                 <p>bad {bad}</p>
+                 <p>all {all}</p>
+                 {isNaN(average) ? <p>average 0</p> : <p>average {average}</p>}
+                 {all === 0 ? <p>positive 0 %</p> : <p>positive {(good / all) * 100} %</p>}
+             </div>
+        }
+         </>
      )
 }
 
@@ -65,11 +75,15 @@ const App = () => {
                 <Button handleClick={handleClick} text={"bad"}/>
             </div>
             <div>
+                <h2>
+                    statistics
+                </h2>
                 <Statistics good={good}
                             neutral={neutral}
                             bad={bad}
                             all={all}
                             average={average}
+                            totalClicks={totalClicks}
                 />
             </div>
         </div>
