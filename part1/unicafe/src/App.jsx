@@ -15,19 +15,26 @@ const Button = ({text, handleClick}) => {
 
 const App = () => {
     // save clicks of each button to its own state
-    const [good, setGood] = useState(0)
-    const [neutral, setNeutral] = useState(0)
-    const [bad, setBad] = useState(0)
+    const [good, setGood] = useState(0);
+    const [neutral, setNeutral] = useState(0);
+    const [bad, setBad] = useState(0);
+    const [totalClicks, setTotalClicks] = useState(0);
+
+    let all = good + bad + neutral;
+    let average = (good - bad) / (totalClicks);
+    console.log(average)
 
 
     const handleClick = (text) => {
+        setTotalClicks(totalClicks + 1);
         if(text === 'good') {
-            setGood(good + 1)
+            setGood(good + 1);
         } else if (text === 'neutral') {
             setNeutral(neutral + 1);
         } else {
             setBad(bad + 1);
         }
+
     }
 
     return (
@@ -47,6 +54,9 @@ const App = () => {
                 <p>good {good}</p>
                 <p>neutral {neutral}</p>
                 <p>bad {bad}</p>
+                <p>all {all}</p>
+                {isNaN(average) ? <p>average 0</p> : <p>average {average}</p>}
+                {all === 0 ? <p>positive 0 %</p> : <p>positive {good / all} %</p> }
             </div>
         </div>
     )
