@@ -12,7 +12,16 @@ const Button = ({text, handleClick}) => {
 
 }
 
-const Statistics = ({good, bad, neutral, all, average, totalClicks}) => {
+const StatisticLine = ({value, text}) => {
+
+    return (
+        <>
+            <p>{text} {value}</p>
+        </>
+    )
+}
+
+const Statistics = ({good, bad, neutral, all, average, totalClicks, positive}) => {
 
      return (
          <>
@@ -27,12 +36,13 @@ const Statistics = ({good, bad, neutral, all, average, totalClicks}) => {
                  <h2>
                      statistics
                  </h2>
-                 <p>good {good}</p>
-                 <p>neutral {neutral}</p>
-                 <p>bad {bad}</p>
-                 <p>all {all}</p>
-                 {isNaN(average) ? <p>average 0</p> : <p>average {average}</p>}
-                 {all === 0 ? <p>positive 0 %</p> : <p>positive {(good / all) * 100} %</p>}
+
+                 <StatisticLine text="good" value={good} />
+                 <StatisticLine text="neutral" value={neutral} />
+                 <StatisticLine text="bad" value={bad} />
+                 <StatisticLine text="all" value={all} />
+                 {isNaN(average) ? <p>average 0</p> : <StatisticLine text="average" value={average} /> }
+                 {all === 0 ? <p>positive 0 %</p> : <StatisticLine text="positive" value={positive} /> }
              </div>
         }
          </>
@@ -49,6 +59,7 @@ const App = () => {
 
     let all = good + bad + neutral;
     let average = (good - bad) / (totalClicks);
+    let positive = (good / all) * 100;
 
 
     const handleClick = (text) => {
@@ -75,15 +86,13 @@ const App = () => {
                 <Button handleClick={handleClick} text={"bad"}/>
             </div>
             <div>
-                <h2>
-                    statistics
-                </h2>
                 <Statistics good={good}
                             neutral={neutral}
                             bad={bad}
                             all={all}
                             average={average}
                             totalClicks={totalClicks}
+                            positive={positive}
                 />
             </div>
         </div>
