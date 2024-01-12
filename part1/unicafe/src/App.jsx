@@ -11,16 +11,26 @@ const Button = ({text, handleClick}) => {
     )
 
 }
-
 const StatisticLine = ({value, text}) => {
 
+    const tableStyle = {
+        width: '75px',
+        textAlign: 'left'
+    }
+
     return (
-        <>
-            <p>{text} {value}</p>
-        </>
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <th style={tableStyle}>{text}</th>
+                        <th>{value}</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     )
 }
-
 const Statistics = ({good, bad, neutral, all, average, totalClicks, positive}) => {
 
      return (
@@ -49,7 +59,6 @@ const Statistics = ({good, bad, neutral, all, average, totalClicks, positive}) =
      )
 }
 
-
 const App = () => {
     // save clicks of each button to its own state
     const [good, setGood] = useState(0);
@@ -61,7 +70,6 @@ const App = () => {
     let average = (good - bad) / (totalClicks);
     let positive = (good / all) * 100;
 
-
     const handleClick = (text) => {
         setTotalClicks(totalClicks + 1);
         if(text === 'good') {
@@ -71,9 +79,7 @@ const App = () => {
         } else {
             setBad(bad + 1);
         }
-
     }
-
 
     return (
         <div>
