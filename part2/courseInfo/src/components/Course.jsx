@@ -2,13 +2,27 @@ import Header from "./Header.jsx";
 import Content from "./Content.jsx";
 import Total from "./Total.jsx";
 
-const Course = ({ course, totalExercises }) => {
+const Course = ({ courses }) => {
+
 
     return (
         <>
-            <Header course={course}/>
-            <Content parts={course.parts}/>
-            <Total totalExercises={totalExercises}/>
+            <h2>
+                Web development curriculum
+            </h2>
+            {courses.map((course, i) => {
+                const totalExercises = course.parts.reduce((acc, part) => {
+                    return acc + part.exercises
+                }, 0)
+
+
+                return <div key={i}>
+                            <Header course={course}/>
+                            <Content course={course}/>
+                            <Total totalExercises={totalExercises}/>
+                        </div>
+            })}
+
         </>
     )
 

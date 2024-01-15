@@ -1,12 +1,11 @@
 import Part from "./Part.jsx";
 
 
-const Content = ({ parts }) => {
-    console.log(parts, '****')
+const Content = ({ course }) => {
 
     return (
         <>
-            {parts.map((part, i) => {
+            {course.parts.map((part, i) => {
                 return <Part part={part} key={i}  />
             })}
         </>
