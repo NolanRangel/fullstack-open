@@ -1,7 +1,9 @@
 import Course from "./components/Course.jsx";
+import {useState, useEffect} from "react";
 
 
 const App = () => {
+    const [totalExercises, setTotalExercises] = useState(0)
     const course = {
         id: 1,
         name: 'Half Stack application development',
@@ -24,7 +26,17 @@ const App = () => {
         ]
     }
 
-    return <Course course={course} />
+    useEffect(() => {
+
+        const totalExercises = course.parts.reduce((acc, obj) => {
+            return acc + obj.exercises;
+        }, 0)
+
+        setTotalExercises(totalExercises);
+    }, [course]);
+
+
+    return <Course course={course} totalExercises={totalExercises} />
 }
 
 export default App
