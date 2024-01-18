@@ -5,7 +5,7 @@ const Person = ({ person }) => {
     return (
         <>
             <h3>
-                { person.name }
+                { person.name } { person.number }
             </h3>
         </>
     )
