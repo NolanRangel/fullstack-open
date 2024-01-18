@@ -1,35 +1,58 @@
+import Person from "./components/Person.jsx";
+
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+    const [persons, setPersons] = useState([
+        { name: '' }
+    ]);
+    const [newName, setNewName] = useState('');
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    const updatePhoneBook = () => {
+        const newPerson = {
+            name: newName,
+        };
+
+        setPersons(persons.concat(newPerson))
+        setNewName('')
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+
+        let checkForPerson = persons.find(person => {
+            return newName === person.name
+        })
+        if (!checkForPerson) {
+            updatePhoneBook()
+        } else {
+            alert(`${newName} is already added to the phonebook`)
+        }
+    }
+
+    const handleChange = (e) => {
+        setNewName(e.target.value);
+    }
+
+    return (
+        <div>
+            <h2>Phonebook</h2>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    name: <input value={newName} onChange={handleChange}/>
+                </div>
+                <div>
+                    <button type="submit">add</button>
+                </div>
+            </form>
+
+            <h2>Numbers</h2>
+            {persons.map((person, i) => {
+                return <Person key={i} person={person}/>
+            })}
+        </div>
+    )
 }
 
 export default App
