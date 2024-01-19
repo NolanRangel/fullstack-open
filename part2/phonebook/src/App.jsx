@@ -1,6 +1,7 @@
 import Person from "./components/Person.jsx";
 import AddPerson from "./components/AddPerson.jsx";
 import Phonebook from "./components/Phonebook.jsx";
+import phonebookService from "./services/phonebook.js"
 import {useEffect, useState} from 'react'
 import axios from "axios";
 
@@ -12,17 +13,26 @@ const App = () => {
     const [newNumber, setNewNumber] = useState('');
     const [search, setSearch] = useState('');
 
+
     const updatePhoneBook = () => {
+        let personsLength = persons.length + 1;
+
         const newPerson = {
             name: newName,
             number: newNumber,
-            filtered: true,
-            id: persons.length + 1,
+            id: personsLength.toString(),
         };
 
         setPersons(persons.concat(newPerson));
         setNewName('');
         setNewNumber('');
+
+        phonebookService.createPerson(newPerson)
+            .catch(err => {
+                alert(
+                    `Failure to get all people from the phonebook. Error ${err}`
+                )
+            })
     }
 
     const handleSubmit = (e) => {
@@ -58,14 +68,31 @@ const App = () => {
         setFilteredPersons(filteredPersons)
     }
 
+    const handleDelete = (deletedPerson) => {
+        let confirmation = window.confirm(`Are you sure you want to delete ${deletedPerson.name} from the phonebook?`)
+        const newPersonsList = persons.filter(person => person.id !== deletedPerson.id);
+
+        if (confirmation) {
+            phonebookService.deletePerson(deletedPerson.id)
+                .then(() => setPersons(newPersonsList))
+                .catch(err => {
+                    alert(`There was an issue deleting ${deletedPerson.name} from the phonebook. Error: ${err}`)
+                })
+        }
+
+    }
+
+
 
     useEffect(() => {
-        axios.get('http://localhost:3001/persons')
-            .then(response => {
-                setPersons(response.data)
+        phonebookService.getAllPeople()
+            .then(phonebook => {
+                setPersons(phonebook)
             })
             .catch(err => {
-                console.log(err)
+                alert(
+                    `Failure to get all people from the phonebook. Error ${err}`
+                )
             })
     }, []);
 
@@ -91,11 +118,11 @@ const App = () => {
                 <h2>Numbers</h2>
                 { filteredPersons.length >= 1 ?
                     filteredPersons.map((person, i) => {
-                        return <Person key={i} person={person} />
+                        return <Person key={i} person={person} handleDelete={handleDelete}/>
                     })
                     :
                     persons.map((person, i) => {
-                        return <Person key={i} person={person} />
+                        return <Person key={i} person={person} handleDelete={handleDelete}/>
                     })
                 }
             </div>
