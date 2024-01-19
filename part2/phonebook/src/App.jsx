@@ -2,16 +2,12 @@ import Person from "./components/Person.jsx";
 import AddPerson from "./components/AddPerson.jsx";
 import Phonebook from "./components/Phonebook.jsx";
 import {useEffect, useState} from 'react'
+import axios from "axios";
 
 
 const App = () => {
-    const [persons, setPersons] = useState([
-        { name: '',
-          number: '',
-          filtered: true,
-          id: 0,
-        }
-    ]);
+    const [persons, setPersons] = useState([]);
+    const [filteredPersons, setFilteredPersons] = useState([]);
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
     const [search, setSearch] = useState('');
@@ -52,19 +48,26 @@ const App = () => {
         let searchName = e.target.value
         setSearch(searchName)
 
-        searchName === '' ?
-            persons.map((person, i) => {
-                return person.filtered = true;
-            })
-            :
-            persons.filter(person => {
-                let lowerCasePerson = person.name.toLowerCase();
-                let lowerCaseSearch = searchName.toLowerCase();
+        const filteredPersons = persons.filter(person => {
+            let lowerCasePerson = person.name.toLowerCase();
+            let lowerCaseSearch = searchName.toLowerCase();
 
-                lowerCasePerson.includes(lowerCaseSearch) ? person.filtered = true : person.filtered = false
-            })
+            return lowerCasePerson.includes(lowerCaseSearch)
+        })
+
+        setFilteredPersons(filteredPersons)
     }
 
+
+    useEffect(() => {
+        axios.get('http://localhost:3001/persons')
+            .then(response => {
+                setPersons(response.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, []);
 
 
     return (
@@ -86,9 +89,13 @@ const App = () => {
             </div>
             <div>
                 <h2>Numbers</h2>
-                {
+                { filteredPersons.length >= 1 ?
+                    filteredPersons.map((person, i) => {
+                        return <Person key={i} person={person} />
+                    })
+                    :
                     persons.map((person, i) => {
-                        return person.filtered ? <Person key={i} person={person} /> : null
+                        return <Person key={i} person={person} />
                     })
                 }
             </div>
