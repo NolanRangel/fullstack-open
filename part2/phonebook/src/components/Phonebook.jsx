@@ -8,7 +8,7 @@ const Phonebook = ({ title, handleSearchChange, search }) => {
                 { title }
             </h2>
             <div>
-                <input value={search} onChange={handleSearchChange}/>
+                filter shown with <input value={search} onChange={handleSearchChange}/>
             </div>
 
         </div>
