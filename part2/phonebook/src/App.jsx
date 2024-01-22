@@ -3,7 +3,6 @@ import AddPerson from "./components/AddPerson.jsx";
 import Phonebook from "./components/Phonebook.jsx";
 import phonebookService from "./services/phonebook.js"
 import {useEffect, useState} from 'react'
-import axios from "axios";
 
 
 const App = () => {
@@ -35,15 +34,48 @@ const App = () => {
             })
     }
 
+    const updatePhoneNumber = (id) => {
+        const updatedPerson = {
+            name: newName,
+            number: newNumber,
+            id: id.toString()
+        };
+
+        setNewName('');
+        setNewNumber('');
+
+        phonebookService.updatePerson(updatedPerson, id)
+            .then(response => {
+                console.log(response),
+                setPersons(persons.map(person => person.id !== id ? person : response))})
+            .catch(err => {
+                alert(
+                    `Failure to get all people from the phonebook. Error ${err}`
+                )
+            })
+
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // Check for same name and number
         let checkForPerson = persons.find(person => {
-            return newName === person.name || newNumber === person.number;
+            return newName === person.name && newNumber === person.number;
         })
-        if (!checkForPerson) {
+        // Check for same name different number
+        let checkForPersonNumber = persons.find(person => {
+            return newName === person.name && newNumber !== person.number;
+        })
+
+        if (checkForPersonNumber) {
+            let confirmation = window.confirm(`${checkForPersonNumber.name} is already added to the phonebook, replace the old number with a new one?`)
+            if (confirmation) {
+                updatePhoneNumber(checkForPersonNumber.id);
+            }
+        } else if (!checkForPerson) {
             updatePhoneBook();
-        } else {
+        }  else {
             alert(`${newName} ${newNumber} is already added to the phonebook`);
         }
     }
@@ -81,7 +113,6 @@ const App = () => {
         }
 
     }
-
 
 
     useEffect(() => {
