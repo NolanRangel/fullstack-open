@@ -1,6 +1,7 @@
 import Person from "./components/Person.jsx";
 import AddPerson from "./components/AddPerson.jsx";
 import Phonebook from "./components/Phonebook.jsx";
+import Notification from "./components/Notification.jsx";
 import phonebookService from "./services/phonebook.js"
 import {useEffect, useState} from 'react'
 
@@ -11,6 +12,8 @@ const App = () => {
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
     const [search, setSearch] = useState('');
+    const [message, setMessage] = useState('')
+    const [messageType, setMessageType] = useState('')
 
 
     const updatePhoneBook = () => {
@@ -27,10 +30,25 @@ const App = () => {
         setNewNumber('');
 
         phonebookService.createPerson(newPerson)
-            .catch(err => {
-                alert(
-                    `Failure to get all people from the phonebook. Error ${err}`
+            .then(response => {
+                setMessage(
+                    `${newPerson.name} has been added to the Phonebook`
                 )
+                setMessageType('success')
+                setTimeout(() => {
+                    setMessage(null)
+                    setMessageType('')
+                }, 3000)
+            })
+            .catch(err => {
+                setMessage(
+                    `Error creating ${newPerson.name}`
+                )
+                setMessageType('error')
+                setTimeout(() => {
+                    setMessage(null)
+                    setMessageType('')
+                }, 3000)
             })
     }
 
@@ -46,12 +64,27 @@ const App = () => {
 
         phonebookService.updatePerson(updatedPerson, id)
             .then(response => {
-                console.log(response),
                 setPersons(persons.map(person => person.id !== id ? person : response))})
-            .catch(err => {
-                alert(
-                    `Failure to get all people from the phonebook. Error ${err}`
+            .then(response => {
+                setMessage(
+                    `Updated ${updatedPerson.name}'s Phone number`
                 )
+                setMessageType('success')
+                setTimeout(() => {
+                    setMessage(null)
+                    setMessageType('')
+                }, 3000)
+            })
+            .catch(err => {
+                setMessage(
+                    `${updatedPerson.name} was already deleted from server`
+                )
+                setMessageType('error')
+                setTimeout(() => {
+                    setMessage(null)
+                    setMessageType('')
+                }, 3000)
+                setPersons(persons.filter(person => person.id !== id))
             })
 
     }
@@ -121,15 +154,21 @@ const App = () => {
                 setPersons(phonebook)
             })
             .catch(err => {
-                alert(
-                    `Failure to get all people from the phonebook. Error ${err}`
+                setMessage(
+                    `Error retrieving everyone from the phonebook ${err}`
                 )
+                setMessageType('error')
+                setTimeout(() => {
+                    setMessage(null)
+                    setMessageType('')
+                }, 3000)
             })
     }, []);
 
 
     return (
         <div>
+            <Notification message={message} messageType={messageType} />
             <div>
                 <Phonebook  handleSearchChange={handleSearchChange}
                             title={"Phonebook"}
