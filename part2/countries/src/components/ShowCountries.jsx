@@ -1,14 +1,16 @@
 import Country from "./Country.jsx";
+import {useEffect, useState} from "react";
 
-const ShowCountries = ({ searchCountries, allCountries }) => {
-    let searchCountriesLength = searchCountries.length;
+const ShowCountries = ({ searchCountries }) => {
+
+
 
     return (
         <div>
             <h2>
                 Show Countries
             </h2>
-            { searchCountriesLength > 10 ?
+            { searchCountries.length > 10 ?
                 <div>
                     <h4>
                         Too many matches, specify another country
@@ -17,7 +19,11 @@ const ShowCountries = ({ searchCountries, allCountries }) => {
                 :
                 <ul>
                     {searchCountries.map((result, i) => {
-                        return <Country key={i} country={result} total={searchCountriesLength}/>
+                        return <Country key={i}
+                                        country={result}
+                                        total={searchCountries.length}
+                                        searchCountries={searchCountries}
+                        />
                     })}
                 </ul>
             }

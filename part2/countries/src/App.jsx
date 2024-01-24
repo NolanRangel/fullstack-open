@@ -24,7 +24,6 @@ function App() {
   }
 
 
-
     useEffect(() => {
         axios.get(`https://studies.cs.helsinki.fi/restcountries/api/all`)
             .then(response => setAllCountries(response.data))
