@@ -1,44 +1,42 @@
+import Show from "./Show.jsx";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 
 
+const Country = ({ country, total, searchCountries }) => {
+    const [toggleShow, setToggleShow] = useState(false)
+    const [countryWeather, setCountryWeather] = useState(null)
+    const api_key = import.meta.env.VITE_WEATHER_API_KEY
+    const baseUrl = `https://api.openweathermap.org/data/2.5/weather?q=${country.name.common}&appid=${api_key}`
 
-const Country = ({ country, total }) => {
-    const flag = country.flags.png
-    const alt = country.flags.alt
-    let languageArray = Object.keys(country.languages).map((l) => country.languages[l])
-    console.log(languageArray)
+    const handleClick = () => {
+        setToggleShow(!toggleShow)
+    }
+
+    useEffect(() => {
+        if (total === 1) {
+            setToggleShow(false)
+        }
+
+        axios.get(baseUrl)
+            .then(response => console.log(response.data))
+            .catch(err => console.log(err))
+    }, [searchCountries, toggleShow]);
+
+    console.log(baseUrl)
+
     return (
         <div>
-            { total === 10 || total >= 2 ?
+            { total === 10 || total >= 2 && !toggleShow ?
                 <div>
                     {country.name.common}
+                    <button onClick={handleClick}>
+                        show
+                    </button>
                 </div>
                 :
-                <div>
-                    <h2>
-                        {country.name.common}
-                    </h2>
-                    <p>
-                        {/*Capital {country.capital}*/}
-                    </p>
-                    <p>
-                        Area {country.area}
-                    </p>
-                    <div>
-                        <h4>
-                            Languages
-                        </h4>
-                        <ul>
-                            {
-                                languageArray.map((language, i) => {
-                                    return <li key={i}>{language}</li>
-                                })
-                            }
-                        </ul>
-                    </div>
-
-                    <img src={flag} alt={alt}/>
-                </div>
+                <Show country={country} countryWeather={countryWeather}/>
             }
 
         </div>
