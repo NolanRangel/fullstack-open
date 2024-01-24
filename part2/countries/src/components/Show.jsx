@@ -5,6 +5,8 @@ const Show = ({ country, countryWeather }) => {
     const flag = country.flags.png
     const alt = country.flags.alt
     let languageArray = Object.keys(country.languages).map((l) => country.languages[l])
+    const weatherIconUrl = `https://openweathermap.org/img/wn/${countryWeather.weather[0].icon}@2x.png`
+
 
 
     return (
@@ -31,8 +33,20 @@ const Show = ({ country, countryWeather }) => {
                         }
                     </ul>
                 </div>
-
                 <img src={flag} alt={alt}/>
+            </div>
+
+            <div>
+                <h2>
+                    Weather in {country.capital[0]}
+                </h2>
+                <h4>
+                    temperature {countryWeather.main.temp} Celsius
+                </h4>
+                <img src={weatherIconUrl} />
+                <h4>
+                    wind {countryWeather.wind.speed} m/s
+                </h4>
             </div>
         </div>
     )

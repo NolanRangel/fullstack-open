@@ -1,5 +1,5 @@
 import Country from "./Country.jsx";
-import {useEffect, useState} from "react";
+
 
 const ShowCountries = ({ searchCountries }) => {
 
