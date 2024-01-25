@@ -1,3 +1,4 @@
+const morgan = require('morgan')
 const express = require('express');
 const app = express();
 
@@ -5,11 +6,16 @@ const app = express();
 // Register request timestamp
 const timestamp = function (req, res, next) {
     req.timestamp = new Date
-
     next()
 }
+
 app.use(timestamp)
 app.use(express.json())
+
+morgan.token('body',  req => {
+    return JSON.stringify(req.body)
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'))
 
 
 let persons = [
