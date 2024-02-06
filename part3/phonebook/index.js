@@ -1,7 +1,11 @@
 const morgan = require('morgan')
 const express = require('express');
 const app = express();
+const cors = require('cors')
 
+
+
+app.use(cors())
 
 // Register request timestamp
 const timestamp = function (req, res, next) {
@@ -108,7 +112,7 @@ app.get('/info', (req, res) => {
 
 
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
