@@ -52,7 +52,7 @@ app.get('/api/persons', (req, res) => {
 })
 
 // GET one by id
-app.get('/api/person/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
     const person = persons.find(person => person.id === id);
 
@@ -95,7 +95,7 @@ app.post('/api/persons', (req, res) => {
 })
 
 // DELETE phonebook entry
-app.delete('/api/person/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
     persons = persons.filter(person => person.id !== id)
 
@@ -108,7 +108,6 @@ app.get('/info', (req, res) => {
 
     res.json(phonebookInfo)
 })
-
 
 
 
