@@ -8,6 +8,8 @@ if (process.argv.length<3) {
 }
 
 const password = process.argv[2]
+const name = process.argv[3]
+const number = process.argv[4]
 
 const url = `mongodb+srv://fullstack-open:${password}@fullstack-open.w3s3qqa.mongodb.net/?retryWrites=true&w=majority`
 
@@ -23,14 +25,24 @@ const personSchema = new mongoose.Schema({
 const Person = mongoose.model('Person', personSchema)
 
 const person = new Person({
-    name: 'Chester Tester',
-    number: '406-222-3333'
+    name: name,
+    number: number
 })
 
-person.save().then(result => {
-    console.log('note saved!')
-    mongoose.connection.close()
-})
+if (!name || !number) {
+    Person.find({}).then(result => {
+        result.forEach(person => {
+            console.log(person)
+            mongoose.connection.close()
+        })
+    })
+} else {
+    person.save().then(result => {
+        console.log('Person saved!')
+        mongoose.connection.close()
+    })
+}
+
 
 
 // Docs DB connection to ping for successful connection
