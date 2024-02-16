@@ -2,6 +2,24 @@ const morgan = require('morgan')
 const express = require('express');
 const app = express();
 const cors = require('cors')
+// const {config} = require("dotenv");
+// require('dotenv').config();
+const mongoose = require('mongoose').default;
+
+// const password = config.VITE_MONGO_DB_PW
+// console.log(password)
+
+const url = `mongodb+srv://fullstack-open:${password}@fullstack-open.w3s3qqa.mongodb.net/?retryWrites=true&w=majority`
+
+mongoose.set('strictQuery',false)
+mongoose.connect(url)
+
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: String
+})
+
+const Person = mongoose.model('Note', personSchema)
 
 
 
@@ -48,7 +66,8 @@ let persons = [
 
 // GET all
 app.get('/api/persons', (req, res) => {
-    res.send(persons);
+    // res.send(persons);
+    Person.find({}).then(person => res.json(person))
 })
 
 // GET one by id
