@@ -6,20 +6,24 @@ const app = express();
 const cors = require('cors')
 const Person = require('./models/person')
 
-const errorUniquePerson = (err, req, res, next) => {
-    res.status(400).json({ error: 'Name must be unique' })
-}
-const errorLogger = (err, req, res, next) => {
-    console.log(`Error: ${err.message}`)
+
+const errorHandler = (err, req, res, next) => {
+    if (err.name === 'CastError') {
+        return res.status(400).send({ error: 'Malformatted id' })
+    }
+    else if (err.name === 'ValidationError') {
+        return res.status(400).json({ error: err.message })
+    }
+
     next(err)
-}
-const errorResponder = (err, req, res, next) => {
-    const status = err.status || 400
-    res.status(status).send(err.message)
 }
 const unknownEndpoint = (err, req, res, next) => {
     res.status(404).send('Invalid path')
 }
+// const errorLogger = (err, req, res, next) => {
+//     console.log(`Error: ${err.message}`)
+//     next(err)
+// }
 
 
 app.use(cors())
@@ -82,21 +86,11 @@ app.post('/api/persons', (req, res, next) => {
             number: body.number,
             id: Math.floor(Math.random() * 1000000000)
         })
-
-        const personExists = Person.findOne({name: person.name}).then(person => {
-            res.json(person)
-        })
-        console.log(personExists)
-        if(!personExists) {
-            person.save()
-                .then(savedPerson => {
-                res.json(savedPerson)
-                })
-                .catch(err => next(err))
-        }
-        else if (personExists) {
-            Person.findOneAndUpdate(body.name, body.number, { new: true } )
-        }
+        person.save()
+            .then(savedPerson => {
+                res.json(savedPerson).status(200).end()
+            })
+            .catch(err => next(err))
     }
 })
 
@@ -108,8 +102,7 @@ app.put('/api/persons/:id', (req, res, next) => {
         name: body.name,
         number: body.number
     }
-
-    Person.findByIdAndUpdate(id, person, {new: true})
+    Person.findByIdAndUpdate(id, person, { new: true, runValidators: true, context: 'query' })
         .then(updatedPerson => {
             res.json(updatedPerson).status(200).end()
         })
@@ -136,10 +129,11 @@ app.get('/info', (req, res, next) => {
 })
 
 
-app.use(errorUniquePerson)
-app.use(errorLogger)
-app.use(errorResponder)
+
+app.use(errorHandler)
 app.use(unknownEndpoint)
+// app.use(errorLogger)
+
 const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
