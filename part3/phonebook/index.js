@@ -1,12 +1,23 @@
 const dotenv = require("dotenv");
-
 dotenv.config();
 const morgan = require('morgan')
 const express = require('express');
 const app = express();
 const cors = require('cors')
-
 const Person = require('./models/person')
+
+
+const errorLogger = (err, req, res, next) => {
+    console.log(`Error: ${err.message}`)
+    next(err)
+}
+const errorResponder = (err, req, res, next) => {
+    const status = err.status || 400
+    res.status(status).send(err.message)
+}
+const unknownEndpoint = (err, req, res, next) => {
+    res.status(404).send('Invalid path')
+}
 
 
 app.use(cors())
@@ -27,37 +38,16 @@ morgan.token('body',  req => {
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'))
 
 
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
 // GET all
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
     // res.send(persons);
-    Person.find({}).then(person => res.json(person))
+    Person.find({})
+        .then(person => res.json(person))
+        .catch(err => next(err))
 })
 
 // GET one by id
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     Person.findById(req.params.id)
         .then(person => {
             if(person) {
@@ -67,14 +57,11 @@ app.get('/api/persons/:id', (req, res) => {
             }
 
         })
-        .catch(err => {
-            console.log(err)
-            res.status(400).send({err: 'malformatted id'})
-        })
+        .catch(err => next(err))
 })
 
 // CREATE phonebook entry
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body;
 
     if (!body.name) {
@@ -93,10 +80,11 @@ app.post('/api/persons', (req, res) => {
             number: body.number,
             id: Math.floor(Math.random() * 1000000000)
         })
-        person.save().then(savedPerson => {
+        person.save()
+            .then(savedPerson => {
             res.json(savedPerson)
-        })
-        .catch(err => alert(`Error creating new person ${err}`))
+            })
+            .catch(err => next(err))
 
 
         // const personExists = Person.findById(person.id).then(person => {
@@ -114,12 +102,29 @@ app.post('/api/persons', (req, res) => {
     }
 })
 
-// DELETE phonebook entry
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    persons = persons.filter(person => person.id !== id)
+app.put('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id;
+    const body = req.body;
 
-    res.status(204).end()
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(id, person, {new: true})
+        .then(updatedPerson => {
+            res.json(updatedPerson).status(200).end()
+        })
+        .catch(err => next(err))
+})
+
+// DELETE phonebook entry
+app.delete('/api/persons/:id', (req, res, next) => {
+    Person.findByIdAndDelete(req.params.id)
+        .then(result => {
+            res.status(204).end()
+        })
+        .catch(err => next(err))
 })
 
 // Show phonebook length & Request timestamp
@@ -130,8 +135,9 @@ app.get('/info', (req, res) => {
 })
 
 
-
-
+app.use(errorLogger)
+app.use(errorResponder)
+app.use(unknownEndpoint)
 const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
