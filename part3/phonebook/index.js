@@ -6,7 +6,9 @@ const app = express();
 const cors = require('cors')
 const Person = require('./models/person')
 
-
+const errorUniquePerson = (err, req, res, next) => {
+    res.status(400).json({ error: 'Name must be unique' })
+}
 const errorLogger = (err, req, res, next) => {
     console.log(`Error: ${err.message}`)
     next(err)
@@ -80,25 +82,21 @@ app.post('/api/persons', (req, res, next) => {
             number: body.number,
             id: Math.floor(Math.random() * 1000000000)
         })
-        person.save()
-            .then(savedPerson => {
-            res.json(savedPerson)
-            })
-            .catch(err => next(err))
 
-
-        // const personExists = Person.findById(person.id).then(person => {
-        //     res.json(person)
-        // })
-        //
-        // if (personExists) {
-        //     return res.status(400).json({
-        //         error: 'Name must be unique'
-        //     })
-        // }
-        // else {
-        //
-        // }
+        const personExists = Person.findOne({name: person.name}).then(person => {
+            res.json(person)
+        })
+        console.log(personExists)
+        if(!personExists) {
+            person.save()
+                .then(savedPerson => {
+                res.json(savedPerson)
+                })
+                .catch(err => next(err))
+        }
+        else if (personExists) {
+            Person.findOneAndUpdate(body.name, body.number, { new: true } )
+        }
     }
 })
 
@@ -128,13 +126,17 @@ app.delete('/api/persons/:id', (req, res, next) => {
 })
 
 // Show phonebook length & Request timestamp
-app.get('/info', (req, res) => {
-    let phonebookInfo = `Phonebook has info for ${persons.length} people<br><br><p>Requested at: ${req.timestamp}</p>`
-
-    res.json(phonebookInfo)
+app.get('/info', (req, res, next) => {
+    Person.find({})
+        .then(persons => {
+            let phonebookInfo = 'Phonebook has info for ' + persons.length + ' people. Requested at: ' + req.timestamp
+            res.json(phonebookInfo)
+        })
+        .catch(err => next(err))
 })
 
 
+app.use(errorUniquePerson)
 app.use(errorLogger)
 app.use(errorResponder)
 app.use(unknownEndpoint)
