@@ -15,7 +15,6 @@ const App = () => {
     const [message, setMessage] = useState('')
     const [messageType, setMessageType] = useState('')
 
-
     const updatePhoneBook = () => {
         let personsLength = persons.length + 1;
 
@@ -25,9 +24,6 @@ const App = () => {
             id: personsLength.toString(),
         };
 
-        setPersons(persons.concat(newPerson));
-        setNewName('');
-        setNewNumber('');
 
         phonebookService.createPerson(newPerson)
             .then(response => {
@@ -40,9 +36,14 @@ const App = () => {
                     setMessageType('')
                 }, 3000)
             })
+            .then (response => {
+                setPersons(persons.concat(newPerson));
+                setNewName('');
+                setNewNumber('');
+            })
             .catch(err => {
                 setMessage(
-                    `Error creating ${newPerson.name}`
+                    `${err.response.data.error}`
                 )
                 setMessageType('error')
                 setTimeout(() => {
