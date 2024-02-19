@@ -1,26 +1,12 @@
+const dotenv = require("dotenv");
+
+dotenv.config();
 const morgan = require('morgan')
 const express = require('express');
 const app = express();
 const cors = require('cors')
-// const {config} = require("dotenv");
-// require('dotenv').config();
-const mongoose = require('mongoose').default;
 
-// const password = config.VITE_MONGO_DB_PW
-// console.log(password)
-
-const url = `mongodb+srv://fullstack-open:${password}@fullstack-open.w3s3qqa.mongodb.net/?retryWrites=true&w=majority`
-
-mongoose.set('strictQuery',false)
-mongoose.connect(url)
-
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
-})
-
-const Person = mongoose.model('Note', personSchema)
-
+const Person = require('./models/person')
 
 
 app.use(cors())
@@ -72,44 +58,59 @@ app.get('/api/persons', (req, res) => {
 
 // GET one by id
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const person = persons.find(person => person.id === id);
+    Person.findById(req.params.id)
+        .then(person => {
+            if(person) {
+                res.json(person)
+            } else {
+                res.status(404).end()
+            }
 
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(400).send({err: 'malformatted id'})
+        })
 })
 
 // CREATE phonebook entry
 app.post('/api/persons', (req, res) => {
-    const person = req.body;
+    const body = req.body;
 
-    if (!person.name) {
+    if (!body.name) {
         return res.status(400).json({
             error: 'Name cannot be empty'
         })
     }
-    else if (!person.number) {
+    else if (!body.number) {
         return res.status(400).json({
             error: 'Phone number cannot be empty'
         })
     }
     else {
-        const personId = Math.floor(Math.random() * 1000000000)
-        person.id = personId;
-        const personExists = persons.find(p => p.name === person.name)
+        const person = new Person({
+            name: body.name,
+            number: body.number,
+            id: Math.floor(Math.random() * 1000000000)
+        })
+        person.save().then(savedPerson => {
+            res.json(savedPerson)
+        })
+        .catch(err => alert(`Error creating new person ${err}`))
 
-        if (personExists) {
-            return res.status(400).json({
-                error: 'Name must be unique'
-            })
-        }
-        else {
-            persons = persons.concat(person);
-            res.json(person)
-        }
+
+        // const personExists = Person.findById(person.id).then(person => {
+        //     res.json(person)
+        // })
+        //
+        // if (personExists) {
+        //     return res.status(400).json({
+        //         error: 'Name must be unique'
+        //     })
+        // }
+        // else {
+        //
+        // }
     }
 })
 
@@ -131,7 +132,7 @@ app.get('/info', (req, res) => {
 
 
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
