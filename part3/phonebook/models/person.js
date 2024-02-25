@@ -1,6 +1,7 @@
 const mongoose = require('mongoose').default
 mongoose.set('strictQuery', false)
-const url = process.env.MONGODB_URI
+const MONGODB_URI = require('./utils/config')
+const url = MONGODB_URI
 
 console.log('connecting to', url)
 
