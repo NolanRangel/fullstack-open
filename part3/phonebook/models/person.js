@@ -1,7 +1,7 @@
 const mongoose = require('mongoose').default
 mongoose.set('strictQuery', false)
-const MONGODB_URI = require('./utils/config')
-const url = MONGODB_URI
+const config = require('../utils/config')
+const url = config.MONGODB_URI
 
 console.log('connecting to', url)
 
