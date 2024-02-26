@@ -1,42 +1,43 @@
+const { MONGODB_URI } = require('./utils/config')
 const express = require("express");
 const app = express()
+
 const cors = require("cors");
+const personRouter = require('./controllers/person')
+const { errorHandler,
+        unknownEndpoint,
+        timestamp} = require('./utils/middleware')
+const logger = require('./utils/logger')
+
+const mongoose = require('mongoose')
 const morgan = require("morgan");
+
+
+// DB Connection
+mongoose.set('strictQuery', false)
+const url = MONGODB_URI
+
+console.log('connecting to', url)
+
+mongoose.connect(url)
+    .then(result => {
+        console.log('connected to MongoDB')
+    })
+    .catch(error => {
+        console.log('error connecting to MongoDB:', error.message)
+    })
+
+
+// Middleware & Routing
 app.use(cors())
 app.use(express.static('dist'))
 
+app.use('/api/persons', personRouter)
 
-const errorHandler = (err, req, res, next) => {
-    if (err.name === 'CastError') {
-        return res.status(400).send({ error: 'Malformatted id' })
-    }
-    else if (err.name === 'ValidationError') {
-        return res.status(400).json({ error: err.message })
-    }
-
-    next(err)
-}
-
-const unknownEndpoint = (err, req, res, next) => {
-    res.status(404).send('Invalid path')
-
-    next(err)
-}
-
-// Register request timestamp
-const timestamp = function (req, res, next) {
-    req.timestamp = new Date
-    next()
-}
 app.use(timestamp)
 app.use(express.json())
 
-morgan.token('body',  req => {
-    return JSON.stringify(req.body)
-})
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'))
-
-
 app.use(errorHandler)
 app.use(unknownEndpoint)
 

@@ -1,5 +1,5 @@
 const personRouter = require('express').Router()
-const Person = require('./models/person')
+const Person = require('../models/person')
 
 
 
@@ -86,3 +86,6 @@ personRouter.get('/info', (req, res, next) => {
         })
         .catch(err => next(err))
 })
+
+
+module.exports = personRouter
