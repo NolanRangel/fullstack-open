@@ -1,6 +1,6 @@
 const mongoose = require('mongoose').default
-require('dotenv').config()
-const mongoUrl = process.env.MONGODB_URI
+// require('dotenv').config()
+// const mongoUrl = process.env.MONGODB_URI
 
 
 const blogSchema = new mongoose.Schema({
