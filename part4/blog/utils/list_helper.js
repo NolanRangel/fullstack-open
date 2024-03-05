@@ -15,7 +15,21 @@ const totalLikes = (blogs) => {
     }
 }
 
+const favoriteBlog = (blogs) => {
+    let highest = 0;
+    let favorite;
+
+    blogs.map(blog => {
+        if (blog.likes > highest) {
+            highest = blog.likes
+            favorite = blog
+        }
+    })
+    return favorite
+}
+
 module.exports = {
     dummy,
-    totalLikes
+    totalLikes,
+    favoriteBlog
 }
