@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {maxBy} = require("lodash");
+const {maxBy, values, keys} = require("lodash");
 
 const dummy = (blogs) => {
     return 1;
@@ -44,18 +44,22 @@ const mostBlogs = (blogs) => {
 }
 
 const mostLikes = (blogs) => {
-    // const authors = _.map(_.countBy(blogs, 'author'), (val, key) => ({ author: key, likes: val }))
-    const result = _(blogs)
+    const authors = _(blogs)
         .groupBy('author')
         .map(function(item, itemId) {
-            const obj = [];
-             obj.push({itemId: _.countBy(item, 'likes')})
-            // obj[itemId] = _.countBy(item, 'likes')
-            console.log(obj, 'OBJ!!!!')
+            const obj = {};
+            _.forEach(item, function(value, key) {
+                if (!obj[itemId]) {
+                    obj[itemId] = value.likes
+                } else {
+                    obj[itemId] += value.likes
+                }
+            });
             return obj
         }).value();
-    let sortedAuthors = _.sortBy(result,
-        [function (x) { return x.likes; }]);
+
+    let sortedAuthors = _.orderBy(authors, [keys, values],
+        ['asc', 'desc']);
     return console.log(sortedAuthors, 'YO!!')
     // return sortedAuthors[sortedAuthors.length - 1]
 
