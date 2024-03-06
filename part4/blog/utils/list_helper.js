@@ -44,26 +44,34 @@ const mostBlogs = (blogs) => {
 }
 
 const mostLikes = (blogs) => {
-    const authors = _(blogs)
+    let highest = 0;
+    const mostLikedAuthor = {
+        author: null,
+        likes: null
+    }
+    const authorLikes = _(blogs)
         .groupBy('author')
-        .map(function(item, itemId) {
-            const obj = {};
-            _.forEach(item, function(value, key) {
-                if (!obj[itemId]) {
-                    obj[itemId] = value.likes
-                } else {
-                    obj[itemId] += value.likes
-                }
-            });
-            return obj
-        }).value();
+        .map((items, author) => {
+            return {
+                [author]: _.sumBy(items, 'likes')
+            };
+        })
+        .orderBy(_.values, 'desc')
+        .value();
 
-    let sortedAuthors = _.orderBy(authors, [keys, values],
-        ['asc', 'desc']);
-    return console.log(sortedAuthors, 'YO!!')
-    // return sortedAuthors[sortedAuthors.length - 1]
+    const sortedAuthors = _.map(authorLikes, (obj) => {
+        const author = Object.keys(obj)[0];
+        const likes = obj[author];
+        if (likes >= highest) {
+            highest = likes
+            mostLikedAuthor.author = author
+            mostLikedAuthor.likes = likes
+        }
+        return { author, likes };
+    });
+    return mostLikedAuthor;
+};
 
-}
 
 module.exports = {
     dummy,
