@@ -6,8 +6,6 @@ const cors = require('cors')
 const blogRouter = require('./controllers/blog')
 const mongoose = require('mongoose')
 
-
-
 // DB Connection
 mongoose.set('strictQuery', false)
 
