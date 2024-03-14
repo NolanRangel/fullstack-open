@@ -1,10 +1,34 @@
-const { test, after } = require('node:test')
+const { test, after, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const { app } = require('../app')
-const { strictEqual } = require("assert");
+const { strictEqual, assert } = require("assert");
+const Blog = require('../models/blog')
 
 const api = supertest(app)
+
+const initialBlogs = [
+    {
+        title: "Hello World",
+        author: "Tester Tester",
+        url: "www.google.com",
+        likes: 10
+    },
+    {
+        title: "Hello!",
+        author: "Chester Tester",
+        url: "www.nhl.com",
+        likes: 35
+    }
+]
+
+beforeEach(async () => {
+    await Blog.deleteMany({})
+    let blogObject = new Blog(initialBlogs[0])
+    await blogObject.save()
+    blogObject = new Blog(initialBlogs[1])
+    await blogObject.save()
+})
 
 test('blogs are returned as json', async () => {
     await api
@@ -13,17 +37,17 @@ test('blogs are returned as json', async () => {
         .expect('Content-Type', /application\/json/)
 })
 
-test('there are six blogs', async () => {
+test('there are two blogs', async () => {
     const response = await api.get('/api/blogs')
 
-    strictEqual(response.body.length, 6)
+    strictEqual(response.body.length, initialBlogs.length)
 })
 
 test('the first blog is about HTTP methods', async () => {
     const response = await api.get('/api/blogs')
 
     const contents = response.body.map(e => e.title)
-    strictEqual(contents.includes('Hello World'), true)
+    contents.includes('Hello World')
 })
 
 after(async () => {
