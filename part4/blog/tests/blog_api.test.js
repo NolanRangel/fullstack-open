@@ -50,6 +50,19 @@ test('the first blog is about HTTP methods', async () => {
     contents.includes('Hello World')
 })
 
+test('a blog can be added', async () => {
+    const blog = {
+        title: "Go Wild",
+        author: "Faber",
+        url: "www.stuff.com",
+        likes: 12
+    }
+
+    const response = await api.post('/api/blogs')
+
+
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
