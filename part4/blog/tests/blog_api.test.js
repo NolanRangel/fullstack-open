@@ -4,23 +4,10 @@ const supertest = require('supertest')
 const { app } = require('../app')
 const { strictEqual, assert } = require("assert");
 const Blog = require('../models/blog')
+const helper = require('./test_helper')
 
 const api = supertest(app)
 
-const initialBlogs = [
-    {
-        title: "Hello World",
-        author: "Tester Tester",
-        url: "www.google.com",
-        likes: 10
-    },
-    {
-        title: "Hello!",
-        author: "Chester Tester",
-        url: "www.nhl.com",
-        likes: 35
-    }
-]
 
 beforeEach(async () => {
     await Blog.deleteMany({})
@@ -58,9 +45,33 @@ test('a blog can be added', async () => {
         likes: 12
     }
 
-    const response = await api.post('/api/blogs')
+    await api.post('/api/blogs')
+        .send(blog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
 
+    const response = await api.get('/api/blogs')
+    const blogs = response.body.map(blog => blog.title)
 
+    strictEqual(response.body.length, initialBlogs.length + 1)
+    blogs.includes('Go Wild')
+})
+
+test('blog without content has not been added', async () => {
+
+    const blog = {
+        author: "Failed Blog",
+        url: "www.stuff.com",
+        likes: 21
+    }
+
+    await api.post('/api/blogs')
+        .send(blog)
+        .expect(400)
+
+    const response = await api.get('/api/blogs')
+
+    strictEqual(response.body.length, initialBlogs.length)
 })
 
 after(async () => {
