@@ -12,11 +12,10 @@ const api = supertest(app)
 beforeEach(async () => {
     await Blog.deleteMany({})
 
-    let blogObject = new Blog(helper.initialBlogs[0])
-    await blogObject.save()
-
-    blogObject = new Blog(helper.initialBlogs[1])
-    await blogObject.save()
+    for (const blog of helper.initialBlogs) {
+        let blogObject = new Blog(blog)
+        await blogObject.save()
+    }
 })
 
 test('blogs are returned as json', async () => {
@@ -71,6 +70,25 @@ test('a blog can be added', async () => {
     blogs.includes('Go Wild')
 })
 
+test('likes defaults to 0 when property is missing', async () => {
+    const blog = {
+        title: "Go Wild",
+        author: "Faber",
+        url: "www.stuff.com"
+    }
+
+    await api.post('/api/blogs')
+        .send(blog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const response = await helper.blogsInDb()
+    const blogLikes = response.map(blog => blog.likes)
+
+    strictEqual(response.length, helper.initialBlogs.length + 1)
+    blogLikes.includes(0)
+})
+
 test('blog without content has not been added', async () => {
 
     const blog = {
@@ -100,6 +118,28 @@ test('a blog can be deleted', async () => {
     !contents.includes(firstBlog.title)
 
     strictEqual(response.length, helper.initialBlogs.length - 1)
+})
+
+test('the unique identifier property of the blog posts is named id', async () => {
+    const dbBlogs = await helper.blogsInDb()
+    const blog = [
+        {
+            title: "Go Wild",
+            author: "Faber",
+            url: "www.stuff.com",
+            likes: 12,
+            id: dbBlogs[0].id
+        },
+        {
+            title: "Test Blog",
+            author: "Blogger Blogs",
+            url: "www.stuff.com",
+            likes: 21,
+            id: dbBlogs[1].id
+        }
+    ]
+
+    deepStrictEqual(blog, dbBlogs)
 })
 
 after(async () => {
