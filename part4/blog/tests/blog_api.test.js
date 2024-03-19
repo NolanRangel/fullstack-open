@@ -8,7 +8,6 @@ const helper = require('./test_helper')
 
 const api = supertest(app)
 
-
 beforeEach(async () => {
     await Blog.deleteMany({})
 
@@ -105,6 +104,29 @@ test('blog without content has not been added', async () => {
 
     strictEqual(response.length, helper.initialBlogs.length)
 })
+
+test('a blog can be updated', async () => {
+    const dbBlogs = await helper.blogsInDb();
+    const blogToUpdate = dbBlogs[0];
+
+    const updatedBlog = {
+        title: 'Updated Title',
+        author: blogToUpdate.author,
+        url: blogToUpdate.url,
+        likes: blogToUpdate.likes + 1
+    };
+
+    const response = await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedBlog)
+        .expect(200);
+
+    const updatedBlogs = await helper.blogsInDb();
+    const updatedBlogFromDb = updatedBlogs.find(blog => blog.id === blogToUpdate.id);
+
+    deepStrictEqual(updatedBlogFromDb.title, updatedBlog.title);
+    deepStrictEqual(updatedBlogFromDb.likes, updatedBlog.likes);
+});
 
 test('a blog can be deleted', async () => {
     const blogs = await helper.blogsInDb()
