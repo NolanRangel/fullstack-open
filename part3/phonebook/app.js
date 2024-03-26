@@ -17,7 +17,6 @@ const morgan = require("morgan");
 mongoose.set('strictQuery', false)
 const url = MONGODB_URI
 
-console.log('connecting to', url)
 
 mongoose.connect(url)
     .then(result => {
